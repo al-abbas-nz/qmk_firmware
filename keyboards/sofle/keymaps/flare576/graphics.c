@@ -20,7 +20,7 @@ int current_wpm = -1; // Enable screen-on at startup
 bool isJumping = false;
 bool showedJump = true;
 
-#ifdef OLED_DRIVER_ENABLE
+#ifdef OLED_ENABLE
 
 #ifdef MAIN_BOARD
 static void render_logos(void){}
@@ -185,13 +185,13 @@ static void main_board(void) {
     // Print current mode
     oled_write_ln_P(PSTR("Flare"), false);
     oled_write_ln_P(PSTR("Sofle"), false);
-    if (layer == _FF14) {
-        oled_write_raw_P(ffxiv, 16*8);
-    } else if (keymap_config.swap_lalt_lgui) {
-        oled_write_raw_P(windows, 16*8);
-    } else {
-        oled_write_raw_P(apple, 16*8);
-    }
+    // if (layer == _FF14) {
+    //     oled_write_raw_P(ffxiv, 16*8);
+    // } else if (keymap_config.swap_lalt_lgui) {
+    //     oled_write_raw_P(windows, 16*8);
+    // } else {
+    //     oled_write_raw_P(apple, 16*8);
+    // }
     oled_set_cursor(0, 9);
 
     switch (layer) {
@@ -233,8 +233,8 @@ static void luna_jump(bool newJump){}
 
 #define MARQUEE_FRAME_DURATION 200 // how long each frame lasts in ms
 #define LOGO_BYTES 128
-#define LOGO_COUNT 7
-static const char *const secondary_logos[] = { js, apple, docker, python, qmk, brew, windows };
+#define LOGO_COUNT 1
+static const char *const secondary_logos[] = { js };
 #define MARQUEE_FRAMES (LOGO_COUNT * 4)
 #define MARQUEE_SIZE ( LOGO_COUNT * LOGO_BYTES)
 #define MARQUEE_SCROLL_UP true
@@ -269,22 +269,25 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     return OLED_ROTATION_270;
 }
 
-void oled_task_user(void) {
+bool oled_task_user(void) {
     // Prevent blank screen on startup
     if (current_wpm == -1) {
         set_current_wpm(10);
     }
     current_wpm = get_current_wpm();
+
     if (is_keyboard_master()) {
         // can't gate main_board on wpm; won't get mode changes that don't trigger wpm
         main_board();
     } else if (current_wpm > 0) {
         render_logos();
     }
+
+    return false;
 }
 
-// End "OLED_DRIVER_ENABLE"
+// End "OLED_ENABLE"
 #else
 static void luna_jump(bool newJump){}
-// End "OLED_DRIVER_ENABLE" false
+// End "OLED_ENABLE" false
 #endif
